@@ -1,0 +1,51 @@
+package DialogTPL
+import DialogBox
+import TimerUtils
+
+DialogBox dialog_diff
+DialogBox dialog_mode
+
+function chooseMode(int i)
+    switch(i)
+        case 1
+            //添加自己的逻辑
+            print("选择了普通模式")
+        case 2
+            print("选择了无尽模式")
+
+    destroy dialog_mode
+
+
+function chooseDiff(int i)
+    switch(i)
+        case 1
+            //添加自己的逻辑
+            print("选择了简单难度")
+        case 2
+            print("选择了中等难度")
+        case 3
+            print("选择了困难难度")
+
+    destroy dialog_diff
+
+    dialog_mode = new DialogBox("模式选择")
+    dialog_diff.addButton("普通", () -> chooseMode(1))
+    dialog_diff.addButton("无尽", () -> chooseMode(2))
+    dialog_diff.display(players[0], true)
+
+function initBox()
+    dialog_diff = new DialogBox("难度选择")
+    dialog_diff.addButton("简单", () -> chooseDiff(1))
+    dialog_diff.addButton("中等", () -> chooseDiff(2))
+    dialog_diff.addButton("困难", () -> chooseDiff(3))
+    //添加更多难度...
+    //对红色玩家显示对话框
+    dialog_diff.display(players[0], true)
+
+
+function loadDialogTPL()
+    getTimer().start(1, () -> initBox())
+
+//在init中调用该方法以测试效果
+// init
+//     loadDialogTPL()

@@ -1,0 +1,22 @@
+package MobTest
+import CSMobSystem
+import TimerUtils
+
+
+MobSystem mob
+
+function diErBo()
+    mob..setTitle("第二波怪呢")..setPlayer(players[1])
+
+
+function createMobSystem()
+    mob = new MobSystem(players[0], "下一波倒计时", Rect(100, 100, 200, 200), Rect(900, 900, 1000, 1000))
+    ..put('hpea', 10, 0, 10,()->print("第一波开始"))
+    ..put('hfoo', 10, 0.5, 10,()->diErBo())
+    ..put('hmpr', 10, 1, 10, null)
+    ..start()
+    ..onEnd(() -> print("所有怪物刷新完毕"))
+
+
+init
+    getTimer().start(5, () -> createMobSystem())

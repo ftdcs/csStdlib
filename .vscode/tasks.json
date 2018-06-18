@@ -1,0 +1,23 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "toLni",
+            "type": "process",
+            "command": "w2l lni .\\CSExample.w3x"
+        },
+        {
+            "label": "toSlk",
+            "type": "process",
+            "command": "w2l slk .\\CSExample.w3x"
+        },
+        {
+            "label": "toObj",
+            "type": "process",
+            "command": "w2l obj .\\CSExample.w3x"
+        }
+
+    ]
+}

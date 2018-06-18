@@ -3,7 +3,7 @@ projectName: "CSDzApi"
 dependencies:
 - "https://github.com/wurstscript/wurstStdlib2"
 buildMapData:
-  name: "DefaultName"
-  fileName: "DefaultFileName"
-  author: "DefaultAuthor"
+  name: "CSExample"
+  fileName: "CSExample"
+  author: "kill丶cs"
   playerCount: 1

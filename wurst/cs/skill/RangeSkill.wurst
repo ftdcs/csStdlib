@@ -1,0 +1,15 @@
+package RangeSkill
+import RegisterEvents
+import EventHelper
+import Abilities
+import ClosureTimers
+import ClosureForGroups
+
+init
+    registerSpellEffectEvent('AHfs')->
+        let caster = GetTriggerUnit()
+        let tpos   = getSpellTargetPos()
+        flashEffect(Abilities.aIemTarget, tpos)
+        doAfter(2)->
+            forUnitsInRange(tpos, 200) u->
+                caster.damageTarget(u, 200)

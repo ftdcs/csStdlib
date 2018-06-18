@@ -1,0 +1,103 @@
+package CSMobSystem
+import LinkedList
+import TimerUtils
+
+//暂时只针对防守图
+//by kill丶cs
+//qq 493463169
+public interface MobSystemClosure
+    function run()
+
+public interface MobClosure
+    function run()
+
+public class MobSystem
+
+    private constant units = new LinkedList<Mob>
+    private Mob current
+    private MobSystemClosure endCallback
+    player p
+    string title
+    rect start
+    rect target
+    
+
+    construct(player p,string title,rect start,rect target)
+        this.p = p
+        this.title = title
+        this.start = start
+        this.target = target
+
+    function setTitle(string title)
+        this.title = title
+
+    function setPlayer(player p)
+        this.p = p
+
+    function setStart(rect start)
+        this.start = start
+
+    function setTarget(rect target)
+        this.target = target
+
+    //存入下一波怪物
+    //单位id | 怪物数量 | 怪物出现间隔 设置为0怪物会同时出现 | 这一波怪会在多久之后出现
+    function put(int typeid,int num,real delay,real time,MobClosure callback)
+        Mob mob = new Mob()
+        mob.typeid = typeid
+        mob.num = num
+        mob.delay = delay
+        mob.time = time
+        mob.callback = callback
+        mob._mobSystem = this
+        units.push(mob)
+
+    function start()
+        current = units.dequeue()
+        if(current==null)
+            endCallback.run()
+        else
+            if(current.callback != null)
+                current.callback.run()
+            current.start()
+
+    function onEnd(MobSystemClosure endCallback)
+        this.endCallback = endCallback
+
+    
+
+class Mob
+    int typeid
+    int num
+    real delay
+    real time
+    timer t
+    timerdialog td
+    MobClosure callback
+    
+    MobSystem _mobSystem
+
+    static function attackTarget2()
+        thistype mob = GetExpiredTimer().getData() castTo thistype
+        mob.num--
+        if(mob.num<0)
+            destroy mob
+        else
+            createUnit(mob._mobSystem.p, mob.typeid, mob._mobSystem.start.getCenter(), angle(0))..issuePointOrder("attack", mob._mobSystem.target.getCenter())
+    static function attackTarget()
+        thistype mob = GetExpiredTimer().getData() castTo thistype
+        if(mob.delay > 0)
+            GetExpiredTimer().startPeriodic(mob.delay,() -> attackTarget2())
+        else
+            for int i = 1 to mob.num
+                createUnit(mob._mobSystem.p, mob.typeid, mob._mobSystem.start.getCenter(), angle(0))..issuePointOrder("attack", mob._mobSystem.target.getCenter())
+            destroy mob
+    function start()
+        t = getTimer()..setData(this castTo int)..start(time,() -> attackTarget())
+        td = CreateTimerDialogBJ(t,_mobSystem.title)
+
+    ondestroy
+        destroy callback
+        DestroyTimerDialog(td)
+        t.destr()
+        _mobSystem.start()
