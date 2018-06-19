@@ -1,0 +1,28 @@
+package CSItem
+
+//关于物品的类
+//by kill丶cs
+//qq 493463169
+public trigger trig_pickup_charged  = CreateTrigger()
+
+function rechargeable() returns boolean
+    item _item = GetManipulatedItem()
+    if(GetItemType(_item) == ITEM_TYPE_CHARGED)
+        return true
+    return false
+
+function superPosition()
+    item _item = GetManipulatedItem()
+    unit _unit = GetTriggerUnit()
+    for int index = 0 to _unit.inventorySize()
+        item _item2 = _unit.itemInSlot(index)
+        if(_item2.getTypeId() == _item.getTypeId() and _item != _item2)
+            _item2.setCharges(_item2.getCharges()+_item.getCharges())
+            _item.remove()
+            break
+
+//可充物品叠加
+function installSuperPosition()
+    trig_pickup_charged ..registerAnyUnitEvent(EVENT_PLAYER_UNIT_PICKUP_ITEM)
+                        ..addCondition(Condition(function rechargeable))
+                        ..addAction(function superPosition)
