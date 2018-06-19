@@ -1,5 +1,8 @@
 package CSItem
 
+import HashMap
+import LinkedList
+
 //关于物品的类
 //by kill丶cs
 //qq 493463169
@@ -26,3 +29,79 @@ function installSuperPosition()
     trig_pickup_charged ..registerAnyUnitEvent(EVENT_PLAYER_UNIT_PICKUP_ITEM)
                         ..addCondition(Condition(function rechargeable))
                         ..addAction(function superPosition)
+
+
+
+public tuple itemReq(int typeid, int num)
+
+public HashMap<int,LinkedList<ItemFormula>> formulaList = new HashMap<int,LinkedList<ItemFormula>>
+public HashMap<int,FormulaTarget> formulaTarget = new HashMap<int,FormulaTarget>
+
+//合成
+public interface FormulaClosure
+    function run(unit u)
+class FormulaTarget
+    int target
+    FormulaClosure callback
+
+    construct(int target,FormulaClosure callback)
+        this.target = target
+        this.callback = callback
+
+
+class ItemFormula
+    int typeid
+    int num
+
+    construct(int typeid,int num)
+        this.typeid = typeid
+        this.num    = num
+
+
+function hasReqItem() returns boolean
+    unit u = GetTriggerUnit()
+    LinkedList<ItemFormula> _list = formulaList.get(GetTriggeringTrigger().getHandleId())
+    for formula in _list
+        if(u.hasItemById(formula.typeid))
+            if(formula.num>1)
+                int count = 0
+                for int index = 0 to u.inventorySize()
+                    item _item = u.itemInSlot(index)
+                    if(_item.getTypeId() == formula.typeid)
+                        count ++
+                if(count < formula.num)
+                    return false
+        else
+            return false
+    return true
+
+function doCompose()
+    unit u = GetTriggerUnit()
+    FormulaTarget _target = formulaTarget.get(GetTriggeringTrigger().getHandleId())
+    LinkedList<ItemFormula> _list = formulaList.get(GetTriggeringTrigger().getHandleId())
+    for formula in _list
+        int count = 0
+        for int index = 0 to u.inventorySize()
+            item _item = u.itemInSlot(index)
+            if(_item.getTypeId() == formula.typeid)
+                _item.remove()
+                count ++
+            if(count == formula.num)
+                break
+    _target.callback.run(u)
+    u.addItemById(_target.target)
+
+public function createItemFormula(vararg itemReq _items) returns trigger
+    trigger _trig = CreateTrigger()
+    ..registerAnyUnitEvent(EVENT_PLAYER_UNIT_PICKUP_ITEM)
+    ..addCondition(Condition(function hasReqItem))
+    ..addAction(function doCompose)
+    LinkedList<ItemFormula> _list = new LinkedList<ItemFormula>
+    for req in _items
+        _list.add(new ItemFormula(req.typeid, req.num))
+    formulaList.put(_trig.getHandleId(), _list)
+    return _trig
+
+public function trigger.formulaTarget(int target,FormulaClosure callback)
+    formulaTarget.put(this.getHandleId(),new FormulaTarget(target,callback))
+
