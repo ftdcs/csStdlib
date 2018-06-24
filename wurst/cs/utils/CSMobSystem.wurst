@@ -97,7 +97,8 @@ class Mob
         td = CreateTimerDialogBJ(t,_mobSystem.title)
 
     ondestroy
-        destroy callback
+        if(callback != null)
+            destroy callback
         DestroyTimerDialog(td)
         t.destr()
         _mobSystem.start()
